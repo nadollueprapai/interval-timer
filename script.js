@@ -106,7 +106,7 @@ class IntervalTimer {
       document.getElementById("pauseBtn");
 
     if (!this.state.started) {
-      startBtn.textContent = "Start";
+      startBtn.textContent = "▶ Start";
 
       startBtn.classList.remove("hide");
       pauseBtn.classList.add("hide");
@@ -115,7 +115,7 @@ class IntervalTimer {
     }
 
     if (this.state.paused) {
-      startBtn.textContent = "Resume";
+      startBtn.textContent = "▶ Resume";
 
       startBtn.classList.remove("hide");
       pauseBtn.classList.add("hide");

@@ -221,16 +221,8 @@ body {
     transform: translateY(-1px);
 }
 
-.btn-start {
-    background: var(--accent);
-    color: var(--bg);
-}
-
-.btn-pause {
-    background: var(--text);
-    color: var(--bg);
-}
-
+.btn-start,
+.btn-pause,
 .btn-reset,
 .btn-add {
     background: var(--card-strong);
