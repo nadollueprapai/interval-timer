@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interval Timer App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Interval Timer</h1>
+      <p>Build custom workout intervals</p>
+    </header>
+
+    <div class="main-content">
+      <!-- Timer Display -->
+      <div class="timer-display" id="timerDisplay">
+        <div class="background-color" id="bgColor"></div>
+        <div class="exercise-name" id="exerciseName">Ready?</div>
+        <div class="current-time" id="currentTime">00:00</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="round-counter" id="roundCounter">Round: 1/8</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button id="startBtn" class="btn btn-start">▶ Start</button>
+        <button id="pauseBtn" class="btn btn-pause hide">⏸ Pause</button>
+        <button id="resetBtn" class="btn btn-reset">↻ Reset</button>
+      </div>
+
+      <!-- Settings -->
+      <div class="settings">
+        <label>
+          Total Rounds:
+          <button class="btn-small" id="minusRounds">−</button>
+          <span id="totalRoundsDisplay">8</span>
+          <button class="btn-small" id="plusRounds">+</button>
+        </label>
+        <label>
+          <input type="checkbox" id="soundSwitch" checked> Sound On
+        </label>
+      </div>
+
+      <!-- Intervals List -->
+      <div class="intervals-section">
+        <h2>Intervals</h2>
+        <div class="intervals-list" id="intervalsList"></div>
+        <button id="addExerciseBtn" class="btn btn-secondary">+ Add Interval</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
