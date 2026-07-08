@@ -739,11 +739,13 @@ class IntervalTimer {
 
     document.getElementById(
       "progressFill"
-    ).style.width =
-      Math.max(
+    ).style.setProperty(
+      "--progress",
+      `${Math.max(
         0,
         Math.min(100, percent)
-      ) + "%";
+      )}%`
+    );
 
     document.getElementById(
       "roundCounter"
