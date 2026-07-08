@@ -23,6 +23,7 @@ class IntervalTimer {
     };
 
     this.mainTimer = null;
+    this.lastTickAt = null;
 
     // Shared audio context
     this.audioCtx = new (
@@ -91,6 +92,13 @@ class IntervalTimer {
         this.playClickSound();
         this.changeRounds(-1);
       });
+
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        this.handleVisibilityChange();
+      }
+    );
   }
 
   initialiseIntervals() {
@@ -105,24 +113,34 @@ class IntervalTimer {
     const pauseBtn =
       document.getElementById("pauseBtn");
 
+    // Check if the interval timer has not started.
     if (!this.state.started) {
+      // If so, let us give the user the option to start the timer.
+      // Set the start button to "Start".
       startBtn.textContent = "Start";
 
+      // Show the start button.
       startBtn.classList.remove("hide");
+      // Hide the pause button.
       pauseBtn.classList.add("hide");
 
       return;
     }
 
+    // Check if the interval timer has been paused.
     if (this.state.paused) {
+      // If so, let us give the user the option to resume the timer.
       startBtn.textContent = "Resume";
 
+      // Show the start button (now the resume button).
       startBtn.classList.remove("hide");
+      // Hide the pause button.
       pauseBtn.classList.add("hide");
 
       return;
     }
 
+    // The interval timer must be running, so we can hide the start button and show the pause button.
     startBtn.classList.add("hide");
     pauseBtn.classList.remove("hide");
   }
@@ -531,6 +549,7 @@ class IntervalTimer {
     if (!this.state.started) return;
 
     this.state.paused = true;
+    this.lastTickAt = Date.now();
 
     this.stopTimer();
 
@@ -552,16 +571,48 @@ class IntervalTimer {
       ? this.items[0].item.duration
       : 0;
 
+    this.lastTickAt = Date.now();
+
     this.updateButtons();
     this.updateDisplay();
+  }
+
+  handleVisibilityChange() {
+    if (
+      !this.state.started ||
+      this.state.paused ||
+      !this.items.length ||
+      !this.lastTickAt
+    ) {
+      return;
+    }
+
+    if (document.hidden) {
+      this.lastTickAt = Date.now();
+      return;
+    }
+
+    const elapsedMs =
+      Date.now() - this.lastTickAt;
+
+    this.lastTickAt = Date.now();
+
+    this.step(elapsedMs);
   }
 
   startLoop() {
     this.stopTimer();
 
+    this.lastTickAt = Date.now();
+
     this.mainTimer = setInterval(
       () => {
-        this.step();
+        const elapsedMs =
+          Date.now() - this.lastTickAt;
+
+        this.lastTickAt = Date.now();
+
+        this.step(elapsedMs);
       },
       1000
     );
@@ -575,7 +626,7 @@ class IntervalTimer {
     }
   }
 
-  step() {
+  step(elapsedMs = 1000) {
     if (
       !this.state.started ||
       this.state.paused ||
@@ -584,8 +635,14 @@ class IntervalTimer {
       return;
     }
 
-    if (this.state.time > 0) {
-      this.state.time--;
+    const elapsedSeconds = Math.max(
+      0,
+      Math.floor(elapsedMs / 1000)
+    );
+
+    if (elapsedSeconds <= 0) {
+      this.updateDisplay();
+      return;
     }
 
     const soundEnabled =
@@ -593,56 +650,63 @@ class IntervalTimer {
         "soundSwitch"
       ).checked;
 
-    if (
-      [3, 2, 1].includes(
-        this.state.time
-      )
-    ) {
-      if (soundEnabled) {
-        this.makeSound(false);
+    for (let i = 0; i < elapsedSeconds; i++) {
+      if (this.state.time > 0) {
+        this.state.time--;
       }
-    }
-
-    if (this.state.time === 0) {
-      const isLastInterval =
-        this.state.interval >=
-        this.items.length - 1;
-
-      const isLastRound =
-        this.rounds.roundsLeft >=
-        this.rounds.totalRounds;
 
       if (
-        isLastInterval &&
-        isLastRound
+        elapsedSeconds === 1 &&
+        [3, 2, 1].includes(this.state.time)
       ) {
+        if (soundEnabled) {
+          this.makeSound(false);
+        }
+      }
+
+      if (this.state.time === 0) {
+        const isLastInterval =
+          this.state.interval >=
+          this.items.length - 1;
+
+        const isLastRound =
+          this.rounds.roundsLeft >=
+          this.rounds.totalRounds;
+
+        if (
+          isLastInterval &&
+          isLastRound
+        ) {
+          if (soundEnabled) {
+            this.makeSound(true);
+          }
+
+          this.reset();
+
+          return;
+        }
+
+        if (!isLastInterval) {
+          this.state.interval++;
+        } else {
+          this.rounds.roundsLeft++;
+
+          this.state.interval = 0;
+        }
+
+        const nextInterval =
+          this.items[
+            this.state.interval
+          ].item;
+
+        this.state.time =
+          nextInterval.duration;
+
         if (soundEnabled) {
           this.makeSound(true);
         }
 
-        this.reset();
-
-        return;
-      }
-
-      if (!isLastInterval) {
-        this.state.interval++;
-      } else {
-        this.rounds.roundsLeft++;
-
-        this.state.interval = 0;
-      }
-
-      const nextInterval =
-        this.items[
-          this.state.interval
-        ].item;
-
-      this.state.time =
-        nextInterval.duration;
-
-      if (soundEnabled) {
-        this.makeSound(true);
+        break;
       }
     }
 
