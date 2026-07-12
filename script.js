@@ -93,6 +93,24 @@ class IntervalTimer {
         this.changeRounds(-1);
       });
 
+    document
+      .getElementById("totalRoundsDisplay")
+      .addEventListener("change", event => {
+        const value = parseInt(
+          event.target.value,
+          10
+        );
+
+        if (
+          Number.isFinite(value) &&
+          value >= 1
+        ) {
+          this.rounds.totalRounds = value;
+        }
+
+        this.updateRoundsDisplay();
+      });
+
     document.addEventListener(
       "visibilitychange",
       () => {
@@ -194,10 +212,6 @@ class IntervalTimer {
       document.getElementById(
         "currentTime"
       ).textContent = "0:00";
-
-      document.getElementById(
-        "progressFill"
-      ).style.width = "0%";
 
       this.renderIntervals();
 
@@ -383,16 +397,19 @@ class IntervalTimer {
       : null;
   }
 
+  updateRoundsDisplay() {
+    document.getElementById(
+      "totalRoundsDisplay"
+    ).value = this.rounds.totalRounds;
+  }
+
   changeRounds(delta) {
     this.rounds.totalRounds = Math.max(
       1,
       this.rounds.totalRounds + delta
     );
 
-    document.getElementById(
-      "totalRoundsDisplay"
-    ).textContent =
-      this.rounds.totalRounds;
+    this.updateRoundsDisplay();
   }
 
   renderIntervals() {
@@ -444,9 +461,6 @@ class IntervalTimer {
       const minus =
         document.createElement("button");
 
-      minus.className =
-        "duration-button";
-
       minus.textContent = "−";
 
       minus.onclick = () =>
@@ -474,9 +488,6 @@ class IntervalTimer {
       const plus =
         document.createElement("button");
 
-      plus.className =
-        "duration-button";
-
       plus.textContent = "+";
 
       plus.onclick = () =>
@@ -493,8 +504,6 @@ class IntervalTimer {
 
       const del =
         document.createElement("button");
-
-      del.className = "delete-button";
 
       del.textContent = "✕";
 
@@ -731,21 +740,6 @@ class IntervalTimer {
       this.secToTime(
         this.state.time
       );
-
-    const percent =
-      100 -
-      (this.state.time * 100) /
-        taskInterval.duration;
-
-    document.getElementById(
-      "progressFill"
-    ).style.setProperty(
-      "--progress",
-      `${Math.max(
-        0,
-        Math.min(100, percent)
-      )}%`
-    );
 
     document.getElementById(
       "roundCounter"
